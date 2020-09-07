@@ -9,7 +9,8 @@ import logoImg from '../../assets/logo.svg'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
 
-import { useAuth } from '../../hooks/AuthContext'
+import { useAuth } from '../../hooks/auth'
+import { useToast } from '../../hooks/toast'
 import getValidationErrors from '../../utils/getValidationError'
 
 interface SignInFormData {
@@ -21,6 +22,7 @@ const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
   const { signIn } = useAuth()
+  const { addToast } = useToast()
 
   const submit = useCallback(
     async (data: SignInFormData): Promise<void> => {
@@ -39,17 +41,25 @@ const SignIn: React.FC = () => {
 
         const { email, password } = data
 
-        signIn({
+        await signIn({
           email,
           password,
         })
       } catch (err) {
-        const errors = getValidationErrors(err)
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err)
 
-        formRef.current?.setErrors(errors)
+          formRef.current?.setErrors(errors)
+        }
+
+        addToast({
+          type: 'error',
+          title: 'Erro na autenticação',
+          description: 'Ocorreu um erro ao fazer login, tente novamente!',
+        })
       }
     },
-    [signIn],
+    [signIn, addToast],
   )
 
   return (
