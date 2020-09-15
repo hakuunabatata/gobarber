@@ -14,6 +14,8 @@ import { Form } from '@unform/mobile'
 import { FormHandles } from '@unform/core'
 import * as Yup from 'yup'
 
+import { useAuth } from '../../hooks/auth'
+
 import Input from '../../components/Input'
 import Button from '../../components/Button'
 
@@ -40,42 +42,45 @@ const SignIn: React.FC = () => {
   const pswdInputRef = useRef<TextInput>(null)
   const navigation = useNavigation()
 
-  const handleSignIn = useCallback(async (data: SignInFormData): Promise<
-    void
-  > => {
-    try {
-      formRef.current?.setErrors({})
+  const { signIn, user } = useAuth()
 
-      const schema = Yup.object().shape({
-        email: Yup.string()
+  const handleSignIn = useCallback(
+    async (data: SignInFormData): Promise<void> => {
+      try {
+        formRef.current?.setErrors({})
 
-          .required('Email obrigatorio')
-          .email('Digite um email valido'),
-        password: Yup.string().required('Senha obrigatoria'),
-      })
+        const schema = Yup.object().shape({
+          email: Yup.string()
 
-      await schema.validate(data, { abortEarly: false })
+            .required('Email obrigatorio')
+            .email('Digite um email valido'),
+          password: Yup.string().required('Senha obrigatoria'),
+        })
 
-      const { email, password } = data
+        await schema.validate(data, { abortEarly: false })
 
-      // await signIn({
-      //   email,
-      //   password,
-      // })
-    } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        const errors = getValidationErrors(err)
+        const { email, password } = data
 
-        formRef.current?.setErrors(errors)
-        return
+        await signIn({
+          email,
+          password,
+        })
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err)
+
+          formRef.current?.setErrors(errors)
+          return
+        }
+
+        Alert.alert(
+          'Erro na autenticação',
+          'Ocorreu um erro ao fazer login, tente novamente!',
+        )
       }
-
-      Alert.alert(
-        'Erro na autenticação',
-        'Ocorreu um erro ao fazer login, tente novamente!',
-      )
-    }
-  }, [])
+    },
+    [signIn],
+  )
 
   return (
     <KeyboardAvoidingView
