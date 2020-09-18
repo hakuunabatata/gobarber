@@ -1,9 +1,9 @@
-import { hash } from 'bcryptjs'
 import { inject, injectable } from 'tsyringe'
 import AppError from '@shared/errors/AppError'
 
 import User from '../infra/typeorm/entities/Users'
 import UserRepository from '../repositories/UserRepository'
+import HashProvider from '../providers/HashProvider/models/HashProvider'
 
 interface Request {
   name: string
@@ -16,6 +16,9 @@ class CreateUserService {
   constructor(
     @inject('UsersRepository')
     private usersRepository: UserRepository,
+
+    @inject('HashProvider')
+    private hashProvider: HashProvider,
   ) {}
 
   public async execute({ name, email, password }: Request): Promise<User> {
@@ -25,7 +28,7 @@ class CreateUserService {
       throw new AppError('Email address already used')
     }
 
-    const hashedPassword = await hash(password, 8)
+    const hashedPassword = await this.hashProvider.generateHash(password)
 
     const user = await this.usersRepository.create({
       name,
