@@ -1,18 +1,23 @@
+import { inject, injectable } from 'tsyringe'
 import path from 'path'
 import fs from 'fs'
 import User from '../infra/typeorm/entities/Users'
 import uploadConfig from '@config/upload'
 
 import AppError from '@shared/errors/AppError'
-import UsersRepository from '../repositories/UserRepository'
+import UserRepository from '../repositories/UserRepository'
 
 interface Request {
   user_id: string
   avatarFilename: string
 }
 
+@injectable()
 class UpdateUserAvatarService {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: UserRepository,
+  ) {}
 
   public async execute({ user_id, avatarFilename }: Request): Promise<User> {
     const user = await this.usersRepository.findById(user_id)
