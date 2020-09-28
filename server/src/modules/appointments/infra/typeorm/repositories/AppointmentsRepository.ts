@@ -24,9 +24,14 @@ class AppointmentsRepository implements AppointmentRepository {
 
   public async create({
     date,
+    user_id,
     provider_id,
   }: CreateAppointmentDTO): Promise<Appointment> {
-    const appointment = this.ormRepository.create({ provider_id, date })
+    const appointment = this.ormRepository.create({
+      provider_id,
+      date,
+      user_id,
+    })
 
     await this.ormRepository.save(appointment)
 
@@ -45,7 +50,7 @@ class AppointmentsRepository implements AppointmentRepository {
         provider_id,
         date: Raw(
           dateFieldName =>
-            `to_char(${dateFieldName}, 'MM-YYYY ) = '${parsedMonth}-${year}'`,
+            `to_char(${dateFieldName}, 'MM-YYYY' ) = '${parsedMonth}-${year}'`,
         ),
       },
     })
@@ -67,7 +72,7 @@ class AppointmentsRepository implements AppointmentRepository {
         provider_id,
         date: Raw(
           dateFieldName =>
-            `to_char(${dateFieldName}, 'DD-MM-YYYY ) = '${parsedDay}-${parsedMonth}-${year}'`,
+            `to_char(${dateFieldName}, 'DD-MM-YYYY' ) = '${parsedDay}-${parsedMonth}-${year}'`,
         ),
       },
     })
