@@ -7,18 +7,18 @@ import CreateAppointmentService from './CreateAppointmentService'
 
 let fakeAppointmentRepository: FakeAppointmentsRepository
 let fakeNotificationRepository: FakeNotificationsRepository
-let fakeCacheProvider: FakeCacheProvider
+// let fakeCacheProvider: FakeCacheProvider
 let CreateAppointment: CreateAppointmentService
 
 describe('CreateAppointment', () => {
   beforeEach(() => {
     fakeAppointmentRepository = new FakeAppointmentsRepository()
     fakeNotificationRepository = new FakeNotificationsRepository()
-    fakeCacheProvider = new FakeCacheProvider()
+    // fakeCacheProvider = new FakeCacheProvider()
     CreateAppointment = new CreateAppointmentService(
       fakeAppointmentRepository,
       fakeNotificationRepository,
-      fakeCacheProvider,
+      // fakeCacheProvider,
     )
   })
 

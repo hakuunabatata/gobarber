@@ -6,6 +6,8 @@ import CreateAppointmentDTO from '@modules/appointments/dtos/CreateAppointmentDT
 import Appointment from '../entities/Appointment'
 import FindAllInMonthFromProviderDTO from '@modules/appointments/dtos/FindAllInMonthFromProviderDTO'
 import FindAllInDayFromProviderDTO from '@modules/appointments/dtos/FindAllInDayFromProviderDTO'
+import { String } from 'aws-sdk/clients/batch'
+import { string } from 'yup'
 
 class AppointmentsRepository implements AppointmentRepository {
   private ormRepository: Repository<Appointment>
@@ -14,9 +16,12 @@ class AppointmentsRepository implements AppointmentRepository {
     this.ormRepository = getRepository(Appointment)
   }
 
-  public async findByDate(date: Date): Promise<Appointment | undefined> {
+  public async findByDate(
+    date: Date,
+    provider_id: String,
+  ): Promise<Appointment | undefined> {
     const findAppointment = await this.ormRepository.findOne({
-      where: { date },
+      where: { date, provider_id },
     })
 
     return findAppointment
@@ -43,7 +48,9 @@ class AppointmentsRepository implements AppointmentRepository {
     month,
     year,
   }: FindAllInMonthFromProviderDTO): Promise<Appointment[]> {
-    const parsedMonth = String(month).padStart(2, '0')
+    const parsedMonth = `${month < 10 ? '0' : ''}${month}`
+
+    console.log(parsedMonth)
 
     const appointments = await this.ormRepository.find({
       where: {
@@ -64,8 +71,8 @@ class AppointmentsRepository implements AppointmentRepository {
     month,
     year,
   }: FindAllInDayFromProviderDTO): Promise<Appointment[]> {
-    const parsedDay = String(day).padStart(2, '0')
-    const parsedMonth = String(month).padStart(2, '0')
+    const parsedDay = `${day < 10 ? '0' : ''}${day}`
+    const parsedMonth = `${month < 10 ? '0' : ''}${month}`
 
     const appointments = await this.ormRepository.find({
       where: {
@@ -75,6 +82,7 @@ class AppointmentsRepository implements AppointmentRepository {
             `to_char(${dateFieldName}, 'DD-MM-YYYY' ) = '${parsedDay}-${parsedMonth}-${year}'`,
         ),
       },
+      relations: ['user'],
     })
 
     return appointments

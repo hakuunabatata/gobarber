@@ -3,6 +3,7 @@ import Appointment from '../infra/typeorm/entities/Appointment'
 
 import AppointmentRepository from '../repositories/AppointmentRepository'
 import CacheProvider from '@shared/container/providers/CacheProvider/models/CacheProvider'
+import { classToClass } from 'class-transformer'
 
 interface Request {
   provider_id: string
@@ -31,8 +32,6 @@ class ListProviderAppointmentService {
 
     let appointments = await this.cacheProvider.recover<Appointment[]>(cacheKey)
 
-    console.log(appointments)
-
     if (!appointments) {
       appointments = await this.appointmentsRepository.findAllInDayFromProvider(
         {
@@ -45,7 +44,7 @@ class ListProviderAppointmentService {
 
       console.log('Buscou do banco')
 
-      await this.cacheProvider.save(cacheKey, appointments)
+      await this.cacheProvider.save(cacheKey, classToClass(appointments))
     }
 
     return appointments

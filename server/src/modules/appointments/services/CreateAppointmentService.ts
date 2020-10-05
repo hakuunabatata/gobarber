@@ -51,6 +51,7 @@ class CreateAppointmentService {
 
     const findAppointmentInSameDate = await this.appointmentsRepository.findByDate(
       appointmentDate,
+      provider_id,
     )
 
     if (findAppointmentInSameDate) {
@@ -71,7 +72,7 @@ class CreateAppointmentService {
     })
 
     await this.cacheProvider.invalidate(
-      `provider-appointments:${provider_id}:${format(
+      `provider-appointments:${provider_id}-${format(
         appointmentDate,
         'yyyy-M-d',
       )}`,
