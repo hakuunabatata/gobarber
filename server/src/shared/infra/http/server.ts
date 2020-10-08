@@ -16,10 +16,10 @@ import '@shared/container'
 
 const app = express()
 
-app.use(rateLimiter)
 app.use(cors())
 app.use(express.json())
 app.use('/files', express.static(uploadConfig.uploadsFolder))
+app.use(rateLimiter)
 app.use(routes)
 
 app.use(errors())
@@ -30,12 +30,12 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       status: 'error',
       message: err.message,
     })
+  } else if (err instanceof Error) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    })
   }
-
-  return res.status(500).json({
-    status: 'error',
-    message: 'Internal server error',
-  })
 })
 
 app.listen(3333, () => {
